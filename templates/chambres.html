@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Gestion des chambres</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@1,600&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <header class="topbar">
+        <div class="brand">
+    <a href="{{ url_for('index') }}" class="brand-link">eHotelia</a>
+</div>
+<div style="color:white; margin-left:auto; margin-right:15px;">
+    {{ session.get('user_name', '') }} ({{ session.get('user_role', '') }})
+</div>
+<button class="menu-toggle" onclick="toggleMenu()">☰</button>
+
+    </header>
+
+<nav id="mobileMenu" class="mobile-menu">
+    <a href="{{ url_for('index') }}">Accueil</a>
+
+    {% if session.get('user_role') == 'manager' %}
+        <a href="{{ url_for('clients') }}">Clients</a>
+        <a href="{{ url_for('chambres') }}">Chambres</a>
+        <a href="{{ url_for('hotels') }}">Hôtels</a>
+        <a href="{{ url_for('employees') }}">Employés</a>
+        <a href="{{ url_for('location') }}">Location</a>
+    {% endif %}
+
+    <a href="{{ url_for('search') }}">Recherche</a>
+    <a href="{{ url_for('reservation') }}">Réservation</a>
+    <a href="{{ url_for('logout') }}">Déconnexion</a>
+</nav>
+
+    <main class="container">
+        <h1>Gestion des chambres</h1>
+
+        <h2>Ajouter une chambre</h2>
+        <form method="POST" action="{{ url_for('add_chambre') }}">
+            <select name="capacity" required>
+                <option value="">Capacité</option>
+                <option value="single">Single</option>
+                <option value="double">Double</option>
+                <option value="family">Family</option>
+                <option value="suite">Suite</option>
+            </select>
+
+            <input type="number" name="superficie" placeholder="Superficie" required>
+            <input type="number" step="0.01" name="chambre_prix" placeholder="Prix" required>
+
+            <select name="add_bed_option" required>
+                <option value="false">Pas de lit ajouté</option>
+                <option value="true">Lit ajouté possible</option>
+            </select>
+
+            <input type="text" name="vue" placeholder="Vue">
+            <input type="text" name="etat" placeholder="État" required>
+
+            <select name="hotel_id" required>
+                <option value="">Choisir un hôtel</option>
+                {% for hotel in hotels %}
+                <option value="{{ hotel[0] }}">{{ hotel[0] }} - {{ hotel[1] }}</option>
+                {% endfor %}
+            </select>
+
+            <button type="submit">Ajouter</button>
+        </form>
+
+        <h2>Modifier une chambre</h2>
+        <form method="POST" action="{{ url_for('update_chambre') }}">
+            <input type="number" name="chambre_id" placeholder="ID chambre" required>
+
+            <select name="capacity" required>
+                <option value="single">Single</option>
+                <option value="double">Double</option>
+                <option value="family">Family</option>
+                <option value="suite">Suite</option>
+            </select>
+
+            <input type="number" name="superficie" placeholder="Superficie" required>
+            <input type="number" step="0.01" name="chambre_prix" placeholder="Prix" required>
+
+            <select name="add_bed_option" required>
+                <option value="false">Pas de lit ajouté</option>
+                <option value="true">Lit ajouté possible</option>
+            </select>
+
+            <input type="text" name="vue" placeholder="Vue">
+            <input type="text" name="etat" placeholder="État" required>
+
+            <select name="hotel_id" required>
+                {% for hotel in hotels %}
+                <option value="{{ hotel[0] }}">{{ hotel[0] }} - {{ hotel[1] }}</option>
+                {% endfor %}
+            </select>
+
+            <button type="submit">Modifier</button>
+        </form>
+
+        <h2>Supprimer une chambre</h2>
+        <form method="POST" action="{{ url_for('delete_chambre') }}">
+            <input type="number" name="chambre_id" placeholder="ID chambre" required>
+            <button type="submit">Supprimer</button>
+        </form>
+
+        <h2>Liste des chambres</h2>
+        <table>
+            <tr>
+                <th>ID</th>
+                <th>Capacité</th>
+                <th>Superficie</th>
+                <th>Prix</th>
+                <th>Lit ajouté</th>
+                <th>Vue</th>
+                <th>État</th>
+                <th>ID Hôtel</th>
+                <th>Nom hôtel</th>
+                <th>Image</th>
+            </tr>
+            {% for chambre in chambres %}
+            <tr>
+                <td>{{ chambre[0] }}</td>
+                <td>{{ chambre[1] }}</td>
+                <td>{{ chambre[2] }}</td>
+                <td>{{ chambre[3] }}</td>
+                <td>{{ chambre[4] }}</td>
+                <td>{{ chambre[5] }}</td>
+                <td>{{ chambre[6] }}</td>
+                <td>{{ chambre[7] }}</td>
+                <td>{{ chambre[8] }}</td>
+                <td>
+                    {% if chambre[5] == 'water' %}
+                        <img src="{{ url_for('static', filename='images/merRoom.jpg') }}" alt="Vue eau" class="room-img">
+                    {% elif chambre[1] == 'suite' %}
+                        <img src="{{ url_for('static', filename='images/suitesRoom.jpg') }}" alt="Suite" class="room-img">
+                    {% elif chambre[1] == 'double' %}
+                        <img src="{{ url_for('static', filename='images/litdouble_1.jpg') }}" alt="Double" class="room-img">
+                    {% else %}
+                        <img src="{{ url_for('static', filename='images/litsimple.jpg') }}" alt="Chambre" class="room-img">
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </table>
+    </main>
+
+    <script>
+        function toggleMenu() {
+            document.getElementById("mobileMenu").classList.toggle("show");
+        }
+    </script>
+    <script>
+    function toggleMenu() {
+        document.getElementById("mobileMenu").classList.toggle("show");
+    }
+</script>
+
+</body>
+</html>

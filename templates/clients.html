@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Clients</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@1,600&display=swap" rel="stylesheet">
+</head>
+<body>
+    <header class="topbar">
+    <div class="brand">
+    <a href="{{ url_for('index') }}" class="brand-link">eHotelia</a>
+</div>
+<div style="color:white; margin-left:auto; margin-right:15px;">
+    {{ session.get('user_name', '') }} ({{ session.get('user_role', '') }})
+</div>
+<button class="menu-toggle" onclick="toggleMenu()">☰</button>
+
+</header>
+
+<nav id="mobileMenu" class="mobile-menu">
+    <a href="{{ url_for('index') }}">Accueil</a>
+
+    {% if session.get('user_role') == 'manager' %}
+        <a href="{{ url_for('clients') }}">Clients</a>
+        <a href="{{ url_for('chambres') }}">Chambres</a>
+        <a href="{{ url_for('hotels') }}">Hôtels</a>
+        <a href="{{ url_for('employees') }}">Employés</a>
+        <a href="{{ url_for('location') }}">Location</a>
+    {% endif %}
+
+    <a href="{{ url_for('search') }}">Recherche</a>
+    <a href="{{ url_for('reservation') }}">Réservation</a>
+    <a href="{{ url_for('logout') }}">Déconnexion</a>
+</nav>
+<main class="container">
+    <h1>Gestion des clients</h1>
+
+
+    <h2>Ajouter un client</h2>
+    <form method="POST" action="{{ url_for('add_client') }}">
+        <input type="text" name="client_name" placeholder="Nom" required>
+        <input type="text" name="client_adress" placeholder="Adresse" required>
+        <input type="text" name="nas_client" placeholder="NAS" required>
+        <button type="submit">Ajouter</button>
+    </form>
+
+    <h2>Modifier un client</h2>
+    <form method="POST" action="{{ url_for('update_client') }}">
+        <input type="number" name="client_id" placeholder="ID client" required>
+        <input type="text" name="client_name" placeholder="Nom" required>
+        <input type="text" name="client_adress" placeholder="Adresse" required>
+        <input type="text" name="nas_client" placeholder="NAS" required>
+        <button type="submit">Modifier</button>
+    </form>
+
+    <h2>Supprimer un client</h2>
+    <form method="POST" action="{{ url_for('delete_client') }}">
+        <input type="number" name="client_id" placeholder="ID client" required>
+        <button type="submit">Supprimer</button>
+    </form>
+
+    <h2>Liste des clients</h2>
+    <table border="1">
+        <tr>
+            <th>ID</th>
+            <th>Nom</th>
+            <th>Adresse</th>
+            <th>NAS</th>
+            <th>Date d’inscription</th>
+        </tr>
+        {% for client in clients %}
+        <tr>
+            <td>{{ client[0] }}</td>
+            <td>{{ client[1] }}</td>
+            <td>{{ client[2] }}</td>
+            <td>{{ client[3] }}</td>
+            <td>{{ client[4] }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+    </main>
+    <script>
+    function toggleMenu() {
+        document.getElementById("mobileMenu").classList.toggle("show");
+    }
+</script>
+</body>
+</html>

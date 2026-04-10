@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Location</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@1,600&display=swap" rel="stylesheet">
+</head>
+<body>
+    <header class="topbar">
+    <div class="brand">
+    <a href="{{ url_for('index') }}" class="brand-link">eHotelia</a>
+</div>
+<div style="color:white; margin-left:auto; margin-right:15px;">
+    {{ session.get('user_name', '') }} ({{ session.get('user_role', '') }})
+</div>
+<button class="menu-toggle" onclick="toggleMenu()">☰</button>
+
+</header>
+
+<nav id="mobileMenu" class="mobile-menu">
+    <a href="{{ url_for('index') }}">Accueil</a>
+
+    {% if session.get('user_role') == 'manager' %}
+        <a href="{{ url_for('clients') }}">Clients</a>
+        <a href="{{ url_for('chambres') }}">Chambres</a>
+        <a href="{{ url_for('hotels') }}">Hôtels</a>
+        <a href="{{ url_for('employees') }}">Employés</a>
+        <a href="{{ url_for('location') }}">Location</a>
+    {% endif %}
+
+    <a href="{{ url_for('search') }}">Recherche</a>
+    <a href="{{ url_for('reservation') }}">Réservation</a>
+    <a href="{{ url_for('logout') }}">Déconnexion</a>
+</nav>
+<main class="container">
+    <h1>Location directe</h1>
+
+  
+
+    <h2>Nouvelle location</h2>
+    <form method="POST" action="{{ url_for('location') }}">
+        <label>Client :</label>
+        <select name="client_id" required>
+            <option value="">-- Choisir un client --</option>
+            {% for client in clients %}
+            <option value="{{ client[0] }}">{{ client[0] }} - {{ client[1] }}</option>
+            {% endfor %}
+        </select>
+
+        <label>Chambre :</label>
+        <select name="chambre_id" required>
+            <option value="">-- Choisir une chambre --</option>
+            {% for chambre in chambres %}
+            <option value="{{ chambre[0] }}">
+                {{ chambre[0] }} - {{ chambre[1] }} - {{ chambre[2] }}$
+            </option>
+            {% endfor %}
+        </select>
+
+        <label>Employé :</label>
+        <select name="id_employee" required>
+            <option value="">-- Choisir un employé --</option>
+            {% for employee in employees %}
+            <option value="{{ employee[0] }}">{{ employee[0] }} - {{ employee[1] }}</option>
+            {% endfor %}
+        </select>
+
+        <label>Date début :</label>
+        <input type="date" name="start_date" required>
+
+        <label>Date fin :</label>
+        <input type="date" name="end_date" required>
+
+        <button type="submit">Louer</button>
+    </form>
+
+    <h2>Liste des locations</h2>
+    <table>
+        <tr>
+            <th>ID</th>
+            <th>Client</th>
+            <th>Chambre</th>
+            <th>Date début</th>
+            <th>Date fin</th>
+        </tr>
+        {% for location in locations %}
+        <tr>
+            <td>{{ location[0] }}</td>
+            <td>{{ location[1] }}</td>
+            <td>{{ location[2] }}</td>
+            <td>{{ location[3] }}</td>
+            <td>{{ location[4] }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+    </main>
+    <script>
+    function toggleMenu() {
+        document.getElementById("mobileMenu").classList.toggle("show");
+    }
+</script>
+</body>
+</html>

@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Connexion - e-Hotel</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@1,700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <!-- NAVBAR (sans hamburger) -->
+    <header class="topbar">
+        <div class="brand">
+            <a href="#" class="brand-link">eHotelia</a>
+        </div>
+    </header>
+
+    <!-- SLIDER PLEIN ÉCRAN -->
+    <main class="hero-page">
+        <div class="slider fullscreen-slider">
+
+            <img class="slide active" src="{{ url_for('static', filename='images/AccueilPage.png') }}">
+            <img class="slide" src="{{ url_for('static', filename='images/staff.png') }}">
+            <img class="slide" src="{{ url_for('static', filename='images/receptionhotel.jpg') }}">
+
+            <div class="slider-overlay"></div>
+
+            <!-- CONTENU CENTRÉ -->
+            <div class="hero-content">
+
+                <!-- BOUTON CONNEXION -->
+                <div class="hero-title-box">
+                    <button class="login-btn" onclick="showLogin()">Connexion</button>
+                </div>
+
+                <!-- FORMULAIRE CACHÉ -->
+                <div id="login-form-box" class="login-box hidden">
+                    
+                    <form method="POST" action="{{ url_for('login') }}">
+                        
+                        <select name="user_type" required>
+                            <option value="">Type de compte</option>
+                            <option value="manager">Gestionnaire</option>
+                            <option value="client">Client</option>
+                        </select>
+
+                        <input type="number" name="user_id" placeholder="Votre ID" required>
+
+                        <button type="submit">Se connecter</button>
+                    </form>
+
+                </div>
+
+            </div>
+        </div>
+    </main>
+
+    <script>
+        function showLogin() {
+            document.getElementById("login-form-box").classList.remove("hidden");
+        }
+
+        let currentSlide = 0;
+        const slides = document.querySelectorAll(".slide");
+
+        function showNextSlide() {
+            slides[currentSlide].classList.remove("active");
+            currentSlide = (currentSlide + 1) % slides.length;
+            slides[currentSlide].classList.add("active");
+        }
+
+        setInterval(showNextSlide, 3000);
+    </script>
+
+</body>
+</html>

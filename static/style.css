@@ -1,0 +1,343 @@
+/* Global */
+body {
+    margin: 0;
+    font-family: Arial, Helvetica, sans-serif;
+    background: #f5f7fb;
+    color: #111827;
+}
+
+h1 {
+    text-align: center;
+    color: #1f3b5b;
+}
+
+h2 {
+    color: #1f3b5b;
+}
+
+/* Layout */
+.container {
+    width: 90%;
+    max-width: 1200px;
+    margin: 25px auto;
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.08);
+}
+
+/* Top bar / hamburger */
+.topbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #7B4019;
+    color: white;
+    padding: 15px 20px;
+}
+
+.brand {
+    display: flex;
+    align-items: center;
+}
+
+.brand-link,
+.brand-link:visited,
+.brand-link:hover,
+.brand-link:active {
+    font-family: 'Playfair Display', serif !important;
+    font-style: italic;
+    font-weight: 700;
+    font-size: 30px;
+    letter-spacing: 1.5px;
+    color: #ffffff !important;
+    text-decoration: none !important;
+    line-height: 1;
+    display: inline-block;
+}
+
+
+.menu-toggle {
+    font-size: 24px;
+    background: none;
+    color: white;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+}
+
+.mobile-menu {
+    display: none;
+    flex-direction: column;
+    background: #7B4019;
+    padding: 10px 20px;
+}
+
+.mobile-menu a {
+    color: white;
+    text-decoration: none;
+    padding: 10px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.mobile-menu.show {
+    display: flex;
+}
+
+/* Buttons */
+button,
+input[type="submit"] {
+    background-color: #FF7D29;
+    color: #ffffff;
+    border: none;
+    padding: 10px 18px;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+button:hover,
+input[type="submit"]:hover {
+    background-color: #FF7D29;
+}
+
+/* Forms */
+form {
+    margin-bottom: 25px;
+}
+
+input,
+select,
+button {
+    margin: 5px;
+    padding: 10px;
+    border-radius: 6px;
+}
+
+/* Tables */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+    background: white;
+}
+
+table,
+th,
+td {
+    border: 1px solid #ddd;
+}
+
+th,
+td {
+    padding: 10px;
+    text-align: left;
+}
+
+th {
+    background: #eef3f8;
+}
+
+/* Images */
+img {
+    max-width: 100%;
+    height: auto;
+}
+
+.room-img {
+    width: 110px;
+    height: 75px;
+    object-fit: cover;
+    border-radius: 8px;
+    display: block;
+}
+
+/* Slider */
+.slider {
+    position: relative;
+    width: 100%;
+    max-width: 900px;
+    height: 420px;
+    margin: 20px auto;
+    overflow: hidden;
+    border-radius: 12px;
+}
+
+.slide {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0;
+    transition: opacity 0.8s ease-in-out;
+}
+
+.slide.active {
+    opacity: 1;
+}
+/* Page accueil */
+.hero-page {
+    margin: 0;
+    padding: 0;
+}
+
+.fullscreen-slider {
+    position: relative;
+    width: 100%;
+    height: calc(100vh - 64px);
+    max-width: 100%;
+    margin: 0;
+    border-radius: 0;
+    overflow: hidden;
+}
+
+/* Images d'accueil */
+.fullscreen-slider .slide {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0;
+    transition: opacity 0.8s ease-in-out;
+    filter: brightness(0.65) ;
+}
+
+.fullscreen-slider .slide.active {
+    opacity: 1;
+}
+
+/* Couche sombre légère pour améliorer la lisibilité */
+.slider-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.007);
+    z-index: 2;
+}
+
+/* Contenu texte sur le slider */
+.hero-content {
+    position: absolute;
+    inset: 0;
+    z-index: 3;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 30px;
+    text-align: center;
+    padding-top: 150px;
+}
+
+/* Boîte blanche floutée pour le grand texte */
+.hero-title-box {
+    background: rgba(255, 255, 255, 0.25);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(4px);
+    padding: 14px 20px;
+    border-radius: 12px;
+    max-width: 1000px;
+    width: 90%;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+    white-space: nowrap;
+}
+
+.hero-title-box h1 {
+    margin: 0;
+    color: #ffffff;
+    font-size: 2rem;
+    line-height: 1.25;
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
+}
+
+/* Petite phrase en bas */
+.hero-subtitle {
+    position: absolute;
+    bottom: 28px;
+    left: 50%;
+    transform: translateX(-50%);
+    margin: 0;
+    color: #ffffff;
+    font-size: 1.5rem;
+   /* background: white;*/
+    padding: 10px 18px;
+    border-radius: 12px;
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    text-shadow: 0 2px 6px rgba(0, 0, 0, 0.35);
+    max-width: 90%;
+}
+
+/* Ajustement de la navbar */
+.topbar {
+    position: relative;
+    z-index: 10;
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+    .fullscreen-slider {
+        height: calc(100vh - 60px);
+    }
+
+    .hero-title-box {
+        padding: 18px 16px;
+        max-width: 92%;
+    }
+
+    .hero-subtitle {
+        font-size: 0.95rem;
+        bottom: 18px;
+    }
+}
+/* Bouton connexion  */
+.login-btn {
+    background: #FF7D29;
+    backdrop-filter: blur(6px);
+    border: none;
+    padding: 15px 35px;
+    border-radius: 12px;
+    font-size: 20px;
+    color: white;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.login-btn:hover {
+    background: rgba(255, 255, 255, 0.4);
+}
+
+/* Formulaire login */
+.login-box {
+    margin-top: 20px;
+    background: rgba(255, 255, 255, 0.25);
+    backdrop-filter: blur(6px);
+    padding: 20px;
+    border-radius: 12px;
+}
+
+.login-box form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.login-box input,
+.login-box select {
+    padding: 10px;
+    border-radius: 6px;
+    border: none;
+}
+
+.login-box button {
+    background: #FF7D29;
+    color: white;
+    border: none;
+    padding: 10px;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+/* cacher formulaire au début */
+.hidden {
+    display: none;
+}

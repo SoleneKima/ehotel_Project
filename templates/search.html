@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Recherche de chambres</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@1,600&display=swap" rel="stylesheet">
+</head>
+<body>
+    <header class="topbar">
+        <div class="brand">
+    <a href="{{ url_for('index') }}" class="brand-link">eHotelia</a>
+</div>
+<div style="color:white; margin-left:auto; margin-right:15px;">
+    {{ session.get('user_name', '') }} ({{ session.get('user_role', '') }})
+</div>
+<button class="menu-toggle" onclick="toggleMenu()">☰</button>
+
+    <nav id="mobileMenu" class="mobile-menu">
+    <a href="{{ url_for('index') }}">Accueil</a>
+
+    {% if session.get('user_role') == 'manager' %}
+        <a href="{{ url_for('clients') }}">Clients</a>
+        <a href="{{ url_for('chambres') }}">Chambres</a>
+        <a href="{{ url_for('hotels') }}">Hôtels</a>
+        <a href="{{ url_for('employees') }}">Employés</a>
+        <a href="{{ url_for('location') }}">Location</a>
+    {% endif %}
+
+    <a href="{{ url_for('search') }}">Recherche</a>
+    <a href="{{ url_for('reservation') }}">Réservation</a>
+    <a href="{{ url_for('logout') }}">Déconnexion</a>
+</nav>
+
+    <main class="container">
+        <h1>Recherche de chambres</h1>
+
+        
+
+        <form id="search-form">
+            <label>Date début :</label>
+            <input type="date" name="start_date">
+
+            <label>Date fin :</label>
+            <input type="date" name="end_date">
+
+            <label>Capacité :</label>
+            <select name="capacity">
+                <option value="">--Choisir--</option>
+                <option value="single">Single</option>
+                <option value="double">Double</option>
+                <option value="family">Family</option>
+                <option value="suite">Suite</option>
+            </select>
+
+            <label>Superficie minimale :</label>
+            <input type="number" name="min_superficie" min="0">
+
+            <label>Chaîne hôtelière :</label>
+            <input type="text" name="chaine_name" placeholder="Ex: Palace Hotels">
+
+            <label>Catégorie :</label>
+            <select name="categorie">
+                <option value="">--Choisir--</option>
+                <option value="3">3 étoiles</option>
+                <option value="4">4 étoiles</option>
+                <option value="5">5 étoiles</option>
+            </select>
+
+            <label>Nombre minimal de chambres dans l’hôtel :</label>
+            <input type="number" name="min_chambre_nb" min="0">
+
+            <label>Prix maximal :</label>
+            <input type="number" step="0.01" name="prix_max" min="0">
+
+            <button type="button" id="reset-btn">Réinitialiser</button>
+        </form>
+
+        <h2>Résultats</h2>
+        <p id="results-count"></p>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>ID chambre</th>
+                    <th>Capacité</th>
+                    <th>Superficie</th>
+                    <th>Prix</th>
+                    <th>Hôtel</th>
+                    <th>Zone</th>
+                    <th>Catégorie</th>
+                    <th>Nb chambres hôtel</th>
+                    <th>Chaîne</th>
+                    <th>Image</th>
+                </tr>
+            </thead>
+            <tbody id="results-body">
+                {% for chambre in chambres %}
+                <tr>
+                    <td>{{ chambre[0] }}</td>
+                    <td>{{ chambre[1] }}</td>
+                    <td>{{ chambre[2] }}</td>
+                    <td>{{ chambre[3] }}</td>
+                    <td>{{ chambre[4] }}</td>
+                    <td>{{ chambre[5] }}</td>
+                    <td>{{ chambre[6] }}</td>
+                    <td>{{ chambre[7] }}</td>
+                    <td>{{ chambre[8] }}</td>
+                    <td>
+                        {% if chambre[1] == 'suite' %}
+                            <img src="{{ url_for('static', filename='images/suitesRoom.jpg') }}" alt="Suite" class="room-img">
+                        {% elif chambre[1] == 'double' %}
+                            <img src="{{ url_for('static', filename='images/litdouble_1.jpg') }}" alt="Double" class="room-img">
+                        {% elif chambre[1] == 'single' %}
+                            <img src="{{ url_for('static', filename='images/litsimple.jpg') }}" alt="Single" class="room-img">
+                        {% elif chambre[5] == 'water' %}
+                            <img src="{{ url_for('static', filename='images/merRoom.jpg') }}" alt="Vue eau" class="room-img">
+                        {% else %}
+                            <img src="{{ url_for('static', filename='images/chaletRoom.jpg') }}" alt="Chambre" class="room-img">
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </main>
+
+    <script>
+        function toggleMenu() {
+            document.getElementById("mobileMenu").classList.toggle("show");
+        }
+
+        const form = document.getElementById("search-form");
+        const resultsBody = document.getElementById("results-body");
+        const resultsCount = document.getElementById("results-count");
+        const resetBtn = document.getElementById("reset-btn");
+
+        let debounceTimer;
+
+        function getImagePath(chambre) {
+            if (chambre.capacity === "suite") {
+                return "{{ url_for('static', filename='images/suitesRoom.jpg') }}";
+            } else if (chambre.capacity === "double") {
+                return "{{ url_for('static', filename='images/litdouble_1.jpg') }}";
+            } else if (chambre.capacity === "single") {
+                return "{{ url_for('static', filename='images/litsimple.jpg') }}";
+            } else if (chambre.zone === "Old Port") {
+                return "{{ url_for('static', filename='images/merRoom.jpg') }}";
+            } else {
+                return "{{ url_for('static', filename='images/chaletRoom.jpg') }}";
+            }
+        }
+
+        function renderResults(chambres) {
+            resultsBody.innerHTML = "";
+            resultsCount.textContent = `${chambres.length} chambre(s) trouvée(s)`;
+
+            if (chambres.length === 0) {
+                resultsBody.innerHTML = `
+                    <tr>
+                        <td colspan="10">Aucun résultat trouvé.</td>
+                    </tr>
+                `;
+                return;
+            }
+
+            chambres.forEach(chambre => {
+                const imagePath = getImagePath(chambre);
+
+                const row = `
+                    <tr>
+                        <td>${chambre.chambre_id}</td>
+                        <td>${chambre.capacity}</td>
+                        <td>${chambre.superficie}</td>
+                        <td>${chambre.chambre_prix}</td>
+                        <td>${chambre.hotel_name}</td>
+                        <td>${chambre.zone}</td>
+                        <td>${chambre.categorie}</td>
+                        <td>${chambre.chambre_nb}</td>
+                        <td>${chambre.chaine_name}</td>
+                        <td><img src="${imagePath}" alt="Chambre" class="room-img"></td>
+                    </tr>
+                `;
+                resultsBody.innerHTML += row;
+            });
+        }
+
+        async function fetchResults() {
+            const formData = new FormData(form);
+
+            const response = await fetch("{{ url_for('search_results') }}", {
+                method: "POST",
+                body: formData
+            });
+
+            const chambres = await response.json();
+            renderResults(chambres);
+        }
+
+        function debounceFetch() {
+            clearTimeout(debounceTimer);
+            debounceTimer = setTimeout(fetchResults, 250);
+        }
+
+        form.querySelectorAll("input, select").forEach(element => {
+            element.addEventListener("input", debounceFetch);
+            element.addEventListener("change", debounceFetch);
+        });
+
+        resetBtn.addEventListener("click", () => {
+            form.reset();
+            fetchResults();
+        });
+
+        window.addEventListener("load", () => {
+            const initialRows = resultsBody.querySelectorAll("tr").length;
+            resultsCount.textContent = `${initialRows} chambre(s) trouvée(s)`;
+        });
+    </script>
+    <script>
+    function toggleMenu() {
+        document.getElementById("mobileMenu").classList.toggle("show");
+    }
+</script>
+</body>
+</html>

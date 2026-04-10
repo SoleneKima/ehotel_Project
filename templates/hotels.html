@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Gestion des hôtels</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@1,600&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <header class="topbar">
+        <div class="brand">
+    <a href="{{ url_for('index') }}" class="brand-link">eHotelia</a>
+</div>
+<div style="color:white; margin-left:auto; margin-right:15px;">
+    {{ session.get('user_name', '') }} ({{ session.get('user_role', '') }})
+</div>
+<button class="menu-toggle" onclick="toggleMenu()">☰</button>
+
+    </header>
+
+ <nav id="mobileMenu" class="mobile-menu">
+    <a href="{{ url_for('index') }}">Accueil</a>
+
+    {% if session.get('user_role') == 'manager' %}
+        <a href="{{ url_for('clients') }}">Clients</a>
+        <a href="{{ url_for('chambres') }}">Chambres</a>
+        <a href="{{ url_for('hotels') }}">Hôtels</a>
+        <a href="{{ url_for('employees') }}">Employés</a>
+        <a href="{{ url_for('location') }}">Location</a>
+    {% endif %}
+
+    <a href="{{ url_for('search') }}">Recherche</a>
+    <a href="{{ url_for('reservation') }}">Réservation</a>
+    <a href="{{ url_for('logout') }}">Déconnexion</a>
+</nav>
+
+    <main class="container">
+        <h1>Gestion des hôtels</h1>
+
+        <h2>Ajouter un hôtel</h2>
+        <form method="POST" action="{{ url_for('add_hotel') }}">
+            <input type="text" name="hotel_name" placeholder="Nom de l'hôtel" required>
+            <input type="text" name="hotel_adress" placeholder="Adresse" required>
+            <input type="text" name="hotel_telephone" placeholder="Téléphone">
+            <input type="email" name="hotel_email" placeholder="Email">
+            <input type="number" name="chambre_nb" placeholder="Nombre de chambres" required>
+
+            <select name="categorie" required>
+                <option value="">Catégorie</option>
+                <option value="1">1 étoile</option>
+                <option value="2">2 étoiles</option>
+                <option value="3">3 étoiles</option>
+                <option value="4">4 étoiles</option>
+                <option value="5">5 étoiles</option>
+            </select>
+
+            <select name="chaine_id" required>
+                <option value="">Choisir une chaîne</option>
+                {% for chaine in chaines %}
+                <option value="{{ chaine[0] }}">{{ chaine[0] }} - {{ chaine[1] }}</option>
+                {% endfor %}
+            </select>
+
+            <select name="id_manager">
+                <option value="">Choisir un manager (optionnel)</option>
+                {% for employee in employees %}
+                <option value="{{ employee[0] }}">{{ employee[0] }} - {{ employee[1] }}</option>
+                {% endfor %}
+            </select>
+
+            <input type="text" name="zone" placeholder="Zone" required>
+
+            <button type="submit">Ajouter</button>
+        </form>
+
+        <h2>Modifier un hôtel</h2>
+        <form method="POST" action="{{ url_for('update_hotel') }}">
+            <input type="number" name="hotel_id" placeholder="ID hôtel" required>
+            <input type="text" name="hotel_name" placeholder="Nom de l'hôtel" required>
+            <input type="text" name="hotel_adress" placeholder="Adresse" required>
+            <input type="text" name="hotel_telephone" placeholder="Téléphone">
+            <input type="email" name="hotel_email" placeholder="Email">
+            <input type="number" name="chambre_nb" placeholder="Nombre de chambres" required>
+
+            <select name="categorie" required>
+                <option value="1">1 étoile</option>
+                <option value="2">2 étoiles</option>
+                <option value="3">3 étoiles</option>
+                <option value="4">4 étoiles</option>
+                <option value="5">5 étoiles</option>
+            </select>
+
+            <select name="chaine_id" required>
+                {% for chaine in chaines %}
+                <option value="{{ chaine[0] }}">{{ chaine[0] }} - {{ chaine[1] }}</option>
+                {% endfor %}
+            </select>
+
+            <select name="id_manager">
+                <option value="">Choisir un manager</option>
+                {% for employee in employees %}
+                <option value="{{ employee[0] }}">{{ employee[0] }} - {{ employee[1] }}</option>
+                {% endfor %}
+            </select>
+
+            <input type="text" name="zone" placeholder="Zone" required>
+
+            <button type="submit">Modifier</button>
+        </form>
+
+        <h2>Supprimer un hôtel</h2>
+        <form method="POST" action="{{ url_for('delete_hotel') }}">
+            <input type="number" name="hotel_id" placeholder="ID hôtel" required>
+            <button type="submit">Supprimer</button>
+        </form>
+
+        <h2>Liste des hôtels</h2>
+        <table>
+            <tr>
+                <th>ID</th>
+                <th>Nom</th>
+                <th>Adresse</th>
+                <th>Téléphone</th>
+                <th>Email</th>
+                <th>Nb chambres</th>
+                <th>Catégorie</th>
+                <th>ID chaîne</th>
+                <th>Chaîne</th>
+                <th>ID manager</th>
+                <th>Zone</th>
+            </tr>
+            {% for hotel in hotels %}
+            <tr>
+                <td>{{ hotel[0] }}</td>
+                <td>{{ hotel[1] }}</td>
+                <td>{{ hotel[2] }}</td>
+                <td>{{ hotel[3] }}</td>
+                <td>{{ hotel[4] }}</td>
+                <td>{{ hotel[5] }}</td>
+                <td>{{ hotel[6] }}</td>
+                <td>{{ hotel[7] }}</td>
+                <td>{{ hotel[10] }}</td>
+                <td>{{ hotel[8] }}</td>
+                <td>{{ hotel[9] }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+    </main>
+
+    <script>
+        function toggleMenu() {
+            document.getElementById("mobileMenu").classList.toggle("show");
+        }
+    </script>
+
+</body>
+</html>
