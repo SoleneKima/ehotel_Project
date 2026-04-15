@@ -22,17 +22,18 @@
 <nav id="mobileMenu" class="mobile-menu">
     <a href="{{ url_for('index') }}">Accueil</a>
 
-    {% if session.get('user_role') == 'manager' %}
-        <a href="{{ url_for('clients') }}">Clients</a>
-        <a href="{{ url_for('chambres') }}">Chambres</a>
-        <a href="{{ url_for('hotels') }}">Hôtels</a>
-        <a href="{{ url_for('employees') }}">Employés</a>
-        <a href="{{ url_for('location') }}">Location</a>
-    {% endif %}
+            {% if session.get('user_role') == 'manager' %}
+            <a href="{{ url_for('clients') }}">Clients</a>
+            <a href="{{ url_for('chambres') }}">Chambres</a>
+            <a href="{{ url_for('hotels') }}">Hôtels</a>
+            <a href="{{ url_for('employees') }}">Employés</a>
+            
+        {% endif %}
 
-    <a href="{{ url_for('search') }}">Recherche</a>
-    <a href="{{ url_for('reservation') }}">Réservation</a>
-    <a href="{{ url_for('logout') }}">Déconnexion</a>
+        <a href="{{ url_for('search') }}">Recherche</a>
+        <a href="{{ url_for('reservation') }}">Réservation</a>
+        <a href="{{ url_for('location') }}">Location</a>
+        <a href="{{ url_for('logout') }}">Déconnexion</a>
 </nav>
 
     <main class="container">

@@ -9,33 +9,35 @@
 <body>
     <header class="topbar">
         <div class="brand">
-    <a href="{{ url_for('index') }}" class="brand-link">eHotelia</a>
-</div>
-<div style="color:white; margin-left:auto; margin-right:15px;">
-    {{ session.get('user_name', '') }} ({{ session.get('user_role', '') }})
-</div>
-<button class="menu-toggle" onclick="toggleMenu()">☰</button>
+            <a href="{{ url_for('index') }}" class="brand-link">eHotelia</a>
+        </div>
+
+        <div style="color:white; margin-left:auto; margin-right:15px;">
+            {{ session.get('user_name', '') }} ({{ session.get('user_role', '') }})
+        </div>
+
+        <button class="menu-toggle" onclick="toggleMenu()">☰</button>
+    </header>
 
     <nav id="mobileMenu" class="mobile-menu">
-    <a href="{{ url_for('index') }}">Accueil</a>
+        <a href="{{ url_for('index') }}">Accueil</a>
 
-    {% if session.get('user_role') == 'manager' %}
-        <a href="{{ url_for('clients') }}">Clients</a>
-        <a href="{{ url_for('chambres') }}">Chambres</a>
-        <a href="{{ url_for('hotels') }}">Hôtels</a>
-        <a href="{{ url_for('employees') }}">Employés</a>
+{% if session.get('user_role') == 'manager' %}
+            <a href="{{ url_for('clients') }}">Clients</a>
+            <a href="{{ url_for('chambres') }}">Chambres</a>
+            <a href="{{ url_for('hotels') }}">Hôtels</a>
+            <a href="{{ url_for('employees') }}">Employés</a>
+          
+        {% endif %}
+
+        <a href="{{ url_for('search') }}">Recherche</a>
+        <a href="{{ url_for('reservation') }}">Réservation</a>
         <a href="{{ url_for('location') }}">Location</a>
-    {% endif %}
-
-    <a href="{{ url_for('search') }}">Recherche</a>
-    <a href="{{ url_for('reservation') }}">Réservation</a>
-    <a href="{{ url_for('logout') }}">Déconnexion</a>
-</nav>
+        <a href="{{ url_for('logout') }}">Déconnexion</a>
+    </nav>
 
     <main class="container">
         <h1>Recherche de chambres</h1>
-
-        
 
         <form id="search-form">
             <label>Date début :</label>
@@ -46,7 +48,7 @@
 
             <label>Capacité :</label>
             <select name="capacity">
-                <option value="">--Choisir--</option>
+                <option value="">-- Choisir --</option>
                 <option value="single">Single</option>
                 <option value="double">Double</option>
                 <option value="family">Family</option>
@@ -61,7 +63,7 @@
 
             <label>Catégorie :</label>
             <select name="categorie">
-                <option value="">--Choisir--</option>
+                <option value="">-- Choisir --</option>
                 <option value="3">3 étoiles</option>
                 <option value="4">4 étoiles</option>
                 <option value="5">5 étoiles</option>
@@ -217,10 +219,5 @@
             resultsCount.textContent = `${initialRows} chambre(s) trouvée(s)`;
         });
     </script>
-    <script>
-    function toggleMenu() {
-        document.getElementById("mobileMenu").classList.toggle("show");
-    }
-</script>
 </body>
 </html>

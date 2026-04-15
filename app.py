@@ -235,13 +235,136 @@ def search_results():
 def reservation():
     conn = get_connection()
     try:
+        user_role = session.get("user_role")
+        user_id = session.get("user_id")
+
         if request.method == "POST":
-            # traitement POST ici
-            pass
+            chambre_id = request.form["chambre_id"].strip()
+            start_date = request.form["start_date"].strip()
+            end_date = request.form["end_date"].strip()
+
+            # Si c'est un client connecté, il réserve uniquement pour lui-même
+            if user_role == "client":
+                client_id = user_id
+            else:
+                client_id = request.form["client_id"].strip()
+
+            if not start_date or not end_date:
+                flash("Veuillez remplir toutes les dates.")
+                return redirect(url_for("reservation"))
+
+            if end_date <= start_date:
+                flash("La date de fin doit être après la date de début.")
+                return redirect(url_for("reservation"))
+
+            with conn.cursor() as cur:
+                # Vérifier que le client existe
+                cur.execute("""
+                    SELECT client_name, NAS_client
+                    FROM client
+                    WHERE client_id = %s
+                """, (client_id,))
+                client_row = cur.fetchone()
+
+                if not client_row:
+                    flash("Client introuvable.")
+                    return redirect(url_for("reservation"))
+
+                client_name, nas_client = client_row
+
+                # Vérifier que la chambre existe
+                cur.execute("""
+                    SELECT ch.chambre_prix, h.hotel_name
+                    FROM chambre ch
+                    JOIN hotel h ON h.hotel_id = ch.hotel_id
+                    WHERE ch.chambre_id = %s
+                """, (chambre_id,))
+                chambre_row = cur.fetchone()
+
+                if not chambre_row:
+                    flash("Chambre introuvable.")
+                    return redirect(url_for("reservation"))
+
+                chambre_prix, hotel_name = chambre_row
+
+                # Vérifier si la chambre est déjà réservée sur ces dates
+                cur.execute("""
+                    SELECT 1
+                    FROM reservation_chambre
+                    WHERE chambre_id = %s
+                      AND %s < end_date
+                      AND %s > start_date
+                    LIMIT 1
+                """, (chambre_id, start_date, end_date))
+                reservation_existante = cur.fetchone()
+
+                # Vérifier si la chambre est déjà louée sur ces dates
+                cur.execute("""
+                    SELECT 1
+                    FROM location_chambre
+                    WHERE chambre_id = %s
+                      AND %s < end_date
+                      AND %s > start_date
+                    LIMIT 1
+                """, (chambre_id, start_date, end_date))
+                location_existante = cur.fetchone()
+
+                if reservation_existante or location_existante:
+                    flash("Cette chambre est déjà réservée ou louée pour cette période.")
+                    return redirect(url_for("reservation"))
+
+                # Insertion de la réservation
+                cur.execute("""
+                    INSERT INTO reservation_chambre (
+                        start_date,
+                        end_date,
+                        client_id,
+                        reservation_date,
+                        chambre_id,
+                        client_name,
+                        NAS_client,
+                        chambre_prix,
+                        hotel_name
+                    )
+                    VALUES (%s, %s, %s, CURRENT_DATE, %s, %s, %s, %s, %s)
+                    RETURNING reservation_id
+                """, (
+                    start_date,
+                    end_date,
+                    client_id,
+                    chambre_id,
+                    client_name,
+                    nas_client,
+                    chambre_prix,
+                    hotel_name
+                ))
+
+                inserted_row = cur.fetchone()
+                conn.commit()
+
+                if inserted_row:
+                    flash(f"Réservation ajoutée avec succès. ID = {inserted_row[0]}")
+                else:
+                    flash("La réservation n'a pas pu être ajoutée.")
+
+                return redirect(url_for("reservation"))
 
         with conn.cursor() as cur:
-            cur.execute("SELECT client_id, client_name FROM client ORDER BY client_id")
-            clients = cur.fetchall()
+            # Si client connecté → seulement lui
+            if user_role == "client":
+                cur.execute("""
+                    SELECT client_id, client_name
+                    FROM client
+                    WHERE client_id = %s
+                """, (user_id,))
+                clients = cur.fetchall()
+            else:
+                cur.execute("""
+                    SELECT client_id, client_name
+                    FROM client
+                    ORDER BY client_id
+                """)
+                clients = cur.fetchall()
 
             cur.execute("""
                 SELECT chambre_id, capacity, chambre_prix
@@ -250,11 +373,20 @@ def reservation():
             """)
             chambres = cur.fetchall()
 
-            cur.execute("""
-                SELECT reservation_id, client_name, chambre_id, start_date, end_date
-                FROM reservation_chambre
-                ORDER BY reservation_id
-            """)
+            # Si client connecté → seulement ses réservations
+            if user_role == "client":
+                cur.execute("""
+                    SELECT reservation_id, client_name, chambre_id, start_date, end_date
+                    FROM reservation_chambre
+                    WHERE client_id = %s
+                    ORDER BY reservation_id
+                """, (user_id,))
+            else:
+                cur.execute("""
+                    SELECT reservation_id, client_name, chambre_id, start_date, end_date
+                    FROM reservation_chambre
+                    ORDER BY reservation_id
+                """)
             reservations = cur.fetchall()
 
             cur.execute("""
@@ -269,54 +401,151 @@ def reservation():
             clients=clients,
             chambres=chambres,
             reservations=reservations,
-            employees=employees
+            employees=employees,
+            user_role=user_role,
+            user_id=user_id
         )
 
     finally:
         conn.close()
-
 @app.route("/location", methods=["GET", "POST"])
 @login_required()
 def location():
     conn = get_connection()
     try:
+        user_role = session.get("user_role")
+        user_id = session.get("user_id")
+
         if request.method == "POST":
-            client_id = request.form["client_id"].strip()
             chambre_id = request.form["chambre_id"].strip()
-            id_employee = request.form["id_employee"].strip()
             start_date = request.form["start_date"].strip()
             end_date = request.form["end_date"].strip()
 
+            # Client connecté = location seulement pour lui-même
+            if user_role == "client":
+                client_id = user_id
+                id_employee = None
+            else:
+                client_id = request.form["client_id"].strip()
+                id_employee = request.form.get("id_employee", "").strip() or None
+
+            if not start_date or not end_date:
+                flash("Veuillez remplir toutes les dates.")
+                return redirect(url_for("location"))
+
+            if end_date <= start_date:
+                flash("La date de fin doit être après la date de début.")
+                return redirect(url_for("location"))
+
             with conn.cursor() as cur:
+                # Vérifier le client
                 cur.execute("""
-                    SELECT c.client_name, c.NAS_client, ch.chambre_prix, h.hotel_name
-                    FROM client c
-                    JOIN chambre ch ON ch.chambre_id = %s
+                    SELECT client_name, NAS_client
+                    FROM client
+                    WHERE client_id = %s
+                """, (client_id,))
+                client_row = cur.fetchone()
+
+                if not client_row:
+                    flash("Client introuvable.")
+                    return redirect(url_for("location"))
+
+                client_name, nas_client = client_row
+
+                # Vérifier la chambre
+                cur.execute("""
+                    SELECT ch.chambre_prix, h.hotel_name
+                    FROM chambre ch
                     JOIN hotel h ON h.hotel_id = ch.hotel_id
-                    WHERE c.client_id = %s
-                """, (chambre_id, client_id))
-                row = cur.fetchone()
+                    WHERE ch.chambre_id = %s
+                """, (chambre_id,))
+                chambre_row = cur.fetchone()
 
-                if row:
-                    client_name, nas_client, chambre_prix, hotel_name = row
+                if not chambre_row:
+                    flash("Chambre introuvable.")
+                    return redirect(url_for("location"))
 
-                    cur.execute("""
-                        INSERT INTO location_chambre (
-                            start_date, end_date, chambre_id, id_employee, client_id,
-                            client_name, NAS_client, chambre_prix, hotel_name
-                        )
-                        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
-                    """, (
-                        start_date, end_date, chambre_id, id_employee, client_id,
-                        client_name, nas_client, chambre_prix, hotel_name
-                    ))
-                    conn.commit()
+                chambre_prix, hotel_name = chambre_row
 
-            return redirect(url_for("location"))
+                # Vérifier si la chambre est déjà réservée
+                cur.execute("""
+                    SELECT 1
+                    FROM reservation_chambre
+                    WHERE chambre_id = %s
+                      AND %s < end_date
+                      AND %s > start_date
+                    LIMIT 1
+                """, (chambre_id, start_date, end_date))
+                reservation_existante = cur.fetchone()
+
+                # Vérifier si la chambre est déjà louée
+                cur.execute("""
+                    SELECT 1
+                    FROM location_chambre
+                    WHERE chambre_id = %s
+                      AND %s < end_date
+                      AND %s > start_date
+                    LIMIT 1
+                """, (chambre_id, start_date, end_date))
+                location_existante = cur.fetchone()
+
+                if reservation_existante or location_existante:
+                    flash("Cette chambre est déjà réservée ou louée pour cette période.")
+                    return redirect(url_for("location"))
+
+                # Insertion location directe
+                cur.execute("""
+                    INSERT INTO location_chambre (
+                        start_date,
+                        end_date,
+                        chambre_id,
+                        id_employee,
+                        client_id,
+                        client_name,
+                        NAS_client,
+                        chambre_prix,
+                        hotel_name
+                    )
+                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+                    RETURNING location_id
+                """, (
+                    start_date,
+                    end_date,
+                    chambre_id,
+                    id_employee,
+                    client_id,
+                    client_name,
+                    nas_client,
+                    chambre_prix,
+                    hotel_name
+                ))
+
+                inserted_row = cur.fetchone()
+                conn.commit()
+
+                if inserted_row:
+                    flash(f"Location ajoutée avec succès. ID = {inserted_row[0]}")
+                else:
+                    flash("La location n'a pas pu être ajoutée.")
+
+                return redirect(url_for("location"))
 
         with conn.cursor() as cur:
-            cur.execute("SELECT client_id, client_name FROM client ORDER BY client_id")
-            clients = cur.fetchall()
+            # Si client connecté → seulement lui
+            if user_role == "client":
+                cur.execute("""
+                    SELECT client_id, client_name
+                    FROM client
+                    WHERE client_id = %s
+                """, (user_id,))
+                clients = cur.fetchall()
+            else:
+                cur.execute("""
+                    SELECT client_id, client_name
+                    FROM client
+                    ORDER BY client_id
+                """)
+                clients = cur.fetchall()
 
             cur.execute("""
                 SELECT chambre_id, capacity, chambre_prix
@@ -325,18 +554,30 @@ def location():
             """)
             chambres = cur.fetchall()
 
-            cur.execute("""
-                SELECT id_employee, employee_name
-                FROM employee
-                ORDER BY id_employee
-            """)
-            employees = cur.fetchall()
+            if user_role == "manager":
+                cur.execute("""
+                    SELECT id_employee, employee_name
+                    FROM employee
+                    ORDER BY id_employee
+                """)
+                employees = cur.fetchall()
+            else:
+                employees = []
 
-            cur.execute("""
-                SELECT location_id, client_name, chambre_id, start_date, end_date
-                FROM location_chambre
-                ORDER BY location_id
-            """)
+            # Si client connecté → seulement ses locations
+            if user_role == "client":
+                cur.execute("""
+                    SELECT location_id, client_name, chambre_id, start_date, end_date
+                    FROM location_chambre
+                    WHERE client_id = %s
+                    ORDER BY location_id
+                """, (user_id,))
+            else:
+                cur.execute("""
+                    SELECT location_id, client_name, chambre_id, start_date, end_date
+                    FROM location_chambre
+                    ORDER BY location_id
+                """)
             locations = cur.fetchall()
 
         return render_template(
@@ -344,7 +585,9 @@ def location():
             clients=clients,
             chambres=chambres,
             employees=employees,
-            locations=locations
+            locations=locations,
+            user_role=user_role,
+            user_id=user_id
         )
     finally:
         conn.close()
