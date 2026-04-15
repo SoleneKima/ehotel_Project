@@ -2,95 +2,95 @@
 
 ## 📌 Description
 
-e-Hotel est une application web développée avec Flask permettant la gestion complète d’un système hôtelier.
-Elle permet aux gestionnaires de gérer les hôtels, chambres, employés et locations, et aux clients de rechercher et réserver des chambres.
+e-Hotel is a web application developed using Flask that enables full management of a hotel system.
+It allows managers to manage hotels, rooms, employees, and rentals, while clients can search for and book rooms.
 
 ---
 
-## ⚙️ Technologies utilisées
+## ⚙️ Technologies used
 
 * **Backend** : Python (Flask)
 * **Frontend** : HTML, CSS
-* **Base de données** : PostgreSQL
-* **Outils** : pgAdmin, GitHub
+* **Database** : PostgreSQL
+* **Tools** : pgAdmin, GitHub
 
 ---
 
-##  Fonctionnalités principales
+##  Main Features
 
 ### 👤 Authentification
 
-* Connexion en tant que :
+* Login as:
 
-  * Gestionnaire
+  * Manager
   * Client
 
-### 🏨 Gestion des données
+### 🏨 Data Management
 
 * Clients
-* Employés
-* Hôtels
-* Chambres
+* Employees
+* Hotels
+* Rooms
 
-### 🔎 Recherche avancée
+### 🔎 Advanced Search
 
 * Dates
-* Capacité
-* Superficie
-* Chaîne hôtelière
-* Catégorie
-* Nombre de chambres
-* Prix
+* Capacity
+* room size
+* Hotel chain
+* Category
+* Number of rooms
+* Price
 
-### 📅 Réservations & Locations
+### 📅 Reservations & Locations (rentals)
 
-* Réserver une chambre
-* Louer une chambre
-* Conversion réservation → location
+* Book a room
+* Rent a room
+* Convert a reservation into a rental
 
 ---
 
-## 🔐 Gestion des rôles
+## 🔐 Role Management
 
-* **Gestionnaire** :
+* **Manager** :
 
-  * Accès complet (CRUD)
+  * Full access (CRUD operations)
 * **Client** :
 
-  * Recherche + réservation uniquement
+  * Search and booking only
 
 ---
 
-## 🗄️ Base de données
+## 🗄️ DataBase
 
-Le fichier `ehotel.sql` contient :
+the  `ehotel.sql`  file contains :
 
-* La structure complète
-* Les données nécessaires au fonctionnement
+* The complete database structure
+* The required data for the application to run
 
 ---
 
-## ▶️ Lancer le projet
+## ▶️ Running the Project
 
-1. Cloner le dépôt :
+1. Clone the repository:
 
 ```bash
 git clone <repo_url>
 ```
 
-2. Installer les dépendances :
+2.Install dependencies:
 
 ```bash
 pip install -r requirements.txt
 ```
 
-3. Lancer l’application :
+3. Run the application:
 
 ```bash
 python app.py
 ```
 
-4. Accéder :
+4.Access the app:
 
 ```
 http://127.0.0.1:5000
@@ -98,6 +98,9 @@ http://127.0.0.1:5000
 
 ---
 
-## 👨‍💻 Auteur
-
-Projet réalisé dans le cadre d’un cours.
+## 👨‍💻 Author
+Solène Kima Munyemba
+Software Engineering Student
+Project carried out as part of the university course Database Systems I
+🔗 GitHub : https://github.com/SoleneKima
+🔗 LinkedIn : https://www.linkedin.com/in/sol%C3%A8ne-kima-843720255/
