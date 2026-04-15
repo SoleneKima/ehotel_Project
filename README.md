@@ -78,7 +78,7 @@ the  `ehotel.sql`  file contains :
 git clone <repo_url>
 ```
 
-2.Install dependencies:
+2. Install dependencies:
 
 ```bash
 pip install -r requirements.txt
@@ -90,7 +90,7 @@ pip install -r requirements.txt
 python app.py
 ```
 
-4.Access the app:
+4. Access the app:
 
 ```
 http://127.0.0.1:5000
